@@ -46,7 +46,11 @@ export default {
   },
   beforeCreate () {
     console.log(this.username)
-    axios.get('https://torre.bio/api/bios/' + this.username)
+    axios.get('https://torre.bio/api/bios/' + this.username, {
+      headers: {
+        'Access-Control-Allow-Origin': '*'
+      }
+    })
       .then((result) => {
         this.profile = result.data
         console.log(this.profile)
