@@ -2,7 +2,7 @@
   <div class="wrapper">
     <div class="wrap_search">
       <div class="search">
-        <input v-model="name" type="text" class="searchTerm" placeholder="Find a profile">
+        <input v-model="name" v-on:keyup="validateWithEnter" type="text" class="searchTerm" placeholder="Find a profile">
         <button type="submit" class="searchButton" @click="getProfiles(false)">
           <i class="fa fa-search"></i>
         </button>
@@ -22,11 +22,78 @@
 
     <a class="button_load" type="button" v-if="arrayProfiles.length > 0" @click="getProfiles(true)">Load more</a>
   </div>
+  <Modal :username="profileUsername" v-if="showModal" @close="showModal = false" />
 </template>
 
-<style scoped>
+<script>
+// @ is an alias to /src
+import axios from 'axios'
+import avatar from '@/assets/img_avatar.png'
+import Modal from '@/components/Modal.vue'
 
-@import url('https://fonts.googleapis.com/css?family=Open+Sans');
+export default {
+  name: 'Profiles',
+  components: {
+    Modal
+  },
+  data () {
+    return {
+      arrayProfiles: [],
+      size: 3,
+      offset: 0,
+      name: '',
+      avatar: avatar,
+      profileUsername: '',
+      showModal: false
+    }
+  },
+  methods: {
+    validateWithEnter (e) {
+      if (e.keyCode === 13) {
+        this.getProfiles(false)
+      }
+    },
+    getProfiles (isLoadMore) {
+      if (!isLoadMore) {
+        this.arrayProfiles = []
+        this.offset = 0
+      } else {
+        this.offset = this.offset + 3
+      }
+      const configHeaders = {
+        'Access-Control-Allow-Origin': '*',
+        'content-type': 'application/json'
+      }
+      let body = {}
+      if (this.name !== '') {
+        body = {
+          name: {
+            term: this.name
+          }
+        }
+      }
+      axios
+        .post('https://search.torre.co/people/_search?size=' + this.size + '&aggregate=false&offset=' + this.offset,
+          body,
+          {
+            headers: configHeaders
+          })
+        .then((result) => {
+          for (let i = 0; i < result.data.results.length; i++) {
+            this.arrayProfiles.push(result.data.results[i])
+          }
+        })
+        .catch(e => console.log(e))
+    },
+    goToSingle (profile) {
+      this.profileUsername = profile.username
+      this.showModal = true
+    }
+  }
+}
+</script>
+
+<style scoped>
 
 .wrapper{
   width: 80%;
@@ -82,7 +149,7 @@ body{
 
 .wrap_card{
   width: 100%;
-  margin: 50px auto;
+  margin: 30px auto;
 }
 
 .card {
@@ -135,60 +202,3 @@ a.button_load:hover{
   margin: 5px auto;
 }
 </style>
-
-<script>
-// @ is an alias to /src
-import axios from 'axios'
-import avatar from '@/assets/img_avatar.png'
-
-export default {
-  name: 'Profiles',
-  components: {},
-  data () {
-    return {
-      arrayProfiles: [],
-      size: 3,
-      offset: 0,
-      name: '',
-      avatar: avatar
-    }
-  },
-  methods: {
-    getProfiles (isLoadMore) {
-      if (!isLoadMore) {
-        this.arrayProfiles = []
-        this.offset = 0
-      } else {
-        this.offset = this.offset + 3
-      }
-      const configHeaders = {
-        'Access-Control-Allow-Origin': '*',
-        'content-type': 'application/json'
-      }
-      let body = {}
-      if (this.name !== '') {
-        body = {
-          name: {
-            term: this.name
-          }
-        }
-      }
-      axios
-        .post('https://search.torre.co/people/_search?size=' + this.size + '&aggregate=false&offset=' + this.offset,
-          body,
-          {
-            headers: configHeaders
-          })
-        .then((result) => {
-          for (let i = 0; i < result.data.results.length; i++) {
-            this.arrayProfiles.push(result.data.results[i])
-          }
-        })
-        .catch(e => console.log(e))
-    },
-    goToSingle (profile) {
-      console.log(profile)
-    }
-  }
-}
-</script>
