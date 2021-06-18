@@ -9,56 +9,37 @@
           </button>
 
           <div class="modal-header">
-            <img class="pic_avatar" :src="job?.person?.picture || avatar" alt="">
+            <span v-for="org in job?.organizations?.slice(0,1)" :key="org.id">
+              <img class="pic_avatar" :src="org?.picture || avatar" alt="">
+            </span>
             <div class="personal_info_box">
-              <h3>{{ job?.person?.name }}</h3>
+              <h3 >{{ job?.objective }}</h3>
               <section>
-                <strong>Profession:</strong> {{ job?.person?.professionalHeadline }}<br>
-                <strong>Location:</strong> {{ job?.person?.location?.name }}<br>
-                <strong>Languages:</strong> <span v-for="lang in job?.languages" :key="lang.id">
-                  {{ lang.language }},
-                </span>
+                <strong>Organization: </strong>
+                <span v-for="org in job?.organizations?.slice(0,1)" :key="org.id">
+                  {{ org.name }}
+                </span><br>
+                <strong>Compensation: </strong>
+                  <span v-if="job?.compensation?.visible">
+                    {{ job?.compensation?.minAmount }} - {{ job?.compensation?.maxAmount }} / {{ job?.compensation?.periodicity }}
+                  </span>
+                  <span v-else>
+                    To be defined
+                  </span><br>
+                <strong>Languages: </strong>
+                <span v-for="lang in job?.languages" :key="lang.id">
+                  {{ lang.language.name }} ({{ lang.fluency }}),
+                </span><br>
+                <strong>Opportunity: </strong> {{ job?.opportunity }}
               </section>
             </div>
           </div>
 
           <div class="modal-body">
-            <div class="info_box">
-              <h3>Education</h3>
-              <div v-if="job?.education?.length">
-                <section v-for="edu in job?.education.slice(0, 3)" :key="edu.id">
-                  <strong>Title:</strong> {{ edu.name }}<br>
-                  <strong>University:</strong> {{ edu.organizations[0].name }}<br>
-                  <strong v-if="edu.fromMonth">From:</strong> {{ edu.fromMonth }}<span v-if="edu.fromMonth">/</span>{{ edu.fromYear }}<br>
-                  <strong v-if="edu.toMonth">To:</strong> {{ edu.toMonth }}<span v-if="edu.toMonth">/</span>{{ edu.toYear }}<br>
-                  <span>&nbsp;</span>
-                </section>
-              </div>
-              <div v-else>
-                There is no experiences listed
-              </div>
+            <div class="info_box" v-for="detail in job?.details?.slice(0,4)" :key="detail.id">
+              <h3>{{ detail.code }}</h3>
+              <p>{{ detail.content }}</p>
             </div>
-            <div class="info_box">
-              <h3>Experiences</h3>
-              <div v-if="job?.experiences?.length">
-                <section v-for="exp in job?.experiences.slice(0, 3)" :key="exp.id">
-                  <strong>Title:</strong> {{ exp.name }}<br>
-                  <strong>University:</strong> {{ exp.organizations[0].name }}<br>
-                  <strong v-if="exp.fromMonth">From:</strong> {{ exp.fromMonth }}<span v-if="exp.fromMonth">/</span>{{ exp.fromYear }}<br>
-                  <strong v-if="exp.toMonth">To:</strong> {{ exp.toMonth }}<span v-if="exp.toMonth">/</span>{{ exp.toYear }}<br>
-                  <span>&nbsp;</span>
-                </section>
-              </div>
-              <div v-else>
-                There is no education listed
-              </div>
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <slot name="footer">
-
-            </slot>
           </div>
         </div>
       </div>
@@ -82,11 +63,9 @@ export default {
     }
   },
   beforeCreate () {
-    console.log(this.jobId)
     axios.get('https://torre.co/api/opportunities/' + this.jobId)
       .then((result) => {
         this.job = result.data
-        console.log(this.job)
       })
       .catch(e => console.log(e))
   }
@@ -121,16 +100,18 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
   font-family: Helvetica, Arial, sans-serif;
+  overflow: scroll;
 }
 
 .modal-header {
   display: block;
 }
 
-.modal-header h3, .modal-body h3, .modal-footer h3 {
+.modal-header h3, .modal-body h3 {
   margin-top: 0;
   margin-bottom: 10px;
   color: #42b983;
+  text-transform: capitalize;
 }
 
 .modal-body {

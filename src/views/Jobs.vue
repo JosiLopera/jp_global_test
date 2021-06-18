@@ -89,13 +89,11 @@ export default {
           for (let i = 0; i < result.data.results.length; i++) {
             this.arrayJobs.push(result.data.results[i])
           }
-          console.log(this.arrayJobs)
         })
         .catch(e => console.log(e))
     },
     goToSingle (jobId) {
       this.jobId = jobId
-      console.log(this.jobId)
       this.showModal = true
     }
   }

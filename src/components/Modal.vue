@@ -82,11 +82,9 @@ export default {
     }
   },
   beforeCreate () {
-    console.log(this.username)
     axios.get('https://torre.bio/api/bios/' + this.username)
       .then((result) => {
         this.profile = result.data
-        console.log(this.profile)
       })
       .catch(e => console.log(e))
   }
@@ -121,6 +119,7 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
   font-family: Helvetica, Arial, sans-serif;
+  overflow: scroll;
 }
 
 .modal-header {
