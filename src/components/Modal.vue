@@ -15,7 +15,7 @@
               <section>
                 <strong>Profession:</strong> {{ profile?.person?.professionalHeadline }}<br>
                 <strong>Location:</strong> {{ profile?.person?.location?.name }}<br>
-                <strong>Languages:</strong> <span v-for="lang in profile?.languages" :key="profile.id">
+                <strong>Languages:</strong> <span v-for="lang in profile?.languages" :key="lang.id">
                   {{ lang.language }},
                 </span>
               </section>
@@ -26,7 +26,7 @@
             <div class="info_box">
               <h3>Education</h3>
               <div v-if="profile?.education?.length">
-                <section v-for="edu in profile?.education.slice(0, 3)" :key="profile.id">
+                <section v-for="edu in profile?.education.slice(0, 3)" :key="edu.id">
                   <strong>Title:</strong> {{ edu.name }}<br>
                   <strong>University:</strong> {{ edu.organizations[0].name }}<br>
                   <strong v-if="edu.fromMonth">From:</strong> {{ edu.fromMonth }}<span v-if="edu.fromMonth">/</span>{{ edu.fromYear }}<br>
@@ -41,7 +41,7 @@
             <div class="info_box">
               <h3>Experiences</h3>
               <div v-if="profile?.experiences?.length">
-                <section v-for="exp in profile?.experiences.slice(0, 3)" :key="profile.id">
+                <section v-for="exp in profile.experiences.slice(0, 3)" :key="exp.id">
                   <strong>Title:</strong> {{ exp.name }}<br>
                   <strong>University:</strong> {{ exp.organizations[0].name }}<br>
                   <strong v-if="exp.fromMonth">From:</strong> {{ exp.fromMonth }}<span v-if="exp.fromMonth">/</span>{{ exp.fromYear }}<br>
