@@ -79,6 +79,7 @@ export default {
           }
         }
       }
+      console.log(body)
       axios
         .post('https://search.torre.co/opportunities/_search?size=' + this.size + '&aggregate=false&offset=' + this.offset,
           body,
