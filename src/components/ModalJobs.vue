@@ -9,13 +9,13 @@
           </button>
 
           <div class="modal-header">
-            <img class="pic_avatar" :src="profile?.person?.picture || avatar" alt="">
+            <img class="pic_avatar" :src="job?.person?.picture || avatar" alt="">
             <div class="personal_info_box">
-              <h3>{{ profile?.person?.name }}</h3>
+              <h3>{{ job?.person?.name }}</h3>
               <section>
-                <strong>Profession:</strong> {{ profile?.person?.professionalHeadline }}<br>
-                <strong>Location:</strong> {{ profile?.person?.location?.name }}<br>
-                <strong>Languages:</strong> <span v-for="lang in profile?.languages" :key="lang.id">
+                <strong>Profession:</strong> {{ job?.person?.professionalHeadline }}<br>
+                <strong>Location:</strong> {{ job?.person?.location?.name }}<br>
+                <strong>Languages:</strong> <span v-for="lang in job?.languages" :key="lang.id">
                   {{ lang.language }},
                 </span>
               </section>
@@ -25,8 +25,8 @@
           <div class="modal-body">
             <div class="info_box">
               <h3>Education</h3>
-              <div v-if="profile?.education?.length">
-                <section v-for="edu in profile?.education.slice(0, 3)" :key="edu.id">
+              <div v-if="job?.education?.length">
+                <section v-for="edu in job?.education.slice(0, 3)" :key="edu.id">
                   <strong>Title:</strong> {{ edu.name }}<br>
                   <strong>University:</strong> {{ edu.organizations[0].name }}<br>
                   <strong v-if="edu.fromMonth">From:</strong> {{ edu.fromMonth }}<span v-if="edu.fromMonth">/</span>{{ edu.fromYear }}<br>
@@ -40,8 +40,8 @@
             </div>
             <div class="info_box">
               <h3>Experiences</h3>
-              <div v-if="profile?.experiences?.length">
-                <section v-for="exp in profile?.experiences.slice(0, 3)" :key="exp.id">
+              <div v-if="job?.experiences?.length">
+                <section v-for="exp in job?.experiences.slice(0, 3)" :key="exp.id">
                   <strong>Title:</strong> {{ exp.name }}<br>
                   <strong>University:</strong> {{ exp.organizations[0].name }}<br>
                   <strong v-if="exp.fromMonth">From:</strong> {{ exp.fromMonth }}<span v-if="exp.fromMonth">/</span>{{ exp.fromYear }}<br>
@@ -71,22 +71,22 @@ import axios from 'axios'
 import avatar from '@/assets/img_avatar.png'
 
 export default {
-  name: 'Modal',
+  name: 'ModalJobs',
   props: {
-    username: String
+    jobId: String
   },
   data () {
     return {
-      profile: {},
+      job: {},
       avatar: avatar
     }
   },
   beforeCreate () {
-    console.log(this.username)
-    axios.get('https://torre.bio/api/bios/' + this.username)
+    console.log(this.jobId)
+    axios.get('https://torre.co/api/opportunities/' + this.jobId)
       .then((result) => {
-        this.profile = result.data
-        console.log(this.profile)
+        this.job = result.data
+        console.log(this.job)
       })
       .catch(e => console.log(e))
   }

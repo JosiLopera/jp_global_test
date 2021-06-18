@@ -199,6 +199,6 @@ a.button_load:hover{
 }
 
 .card_container p, .card_container h4{
-  margin: 5px auto;
+  margin: 3px auto;
 }
 </style>

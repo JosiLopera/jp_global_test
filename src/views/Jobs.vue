@@ -1,28 +1,106 @@
 <template>
   <div class="wrapper">
-    <p>
-      <label for="name">Find a job </label>
-      <input id="name" v-model="name" type="text" name="name">
-    </p>
-
-    <p>
-      <label for="size">Number of jobs </label>
-      <input id="size" v-model="size" type="number" name="size" min="1">
-    </p>
-
-    <p>
-      <input type="button" value="Search" @click="getJobs">
-    </p>
-    <div class="card" v-for="profile in arrayProfiles" :key="profile.id" @click="goToSingle(profile)">
-      <img :src="profile.picture || '/assets/img_avatar.png'" alt="" style="width:100%">
-      <div class="container">
-        <h4><b>{{ profile.name }}</b></h4>
-        <p>{{ profile.professionalHeadline }}</p>
-        <p>{{ profile.locationName }}</p>
+    <div class="wrap_search">
+      <div class="search">
+        <input v-model="name" v-on:keyup="validateWithEnter" type="text" class="searchTerm" placeholder="Find a job">
+        <button type="submit" class="searchButton" @click="getJobs(false)">
+          <i class="fa fa-search"></i>
+        </button>
       </div>
     </div>
+
+    <div class="wrap_card">
+      <div class="card" v-for="job in arrayJobs" :key="job.id" @click="goToSingle(job.id)">
+        <img class="pic_avatar" :src="job?.organizations[0]?.picture || avatar" alt="">
+        <div class="card_container">
+          <h4><b>{{ job?.objective }}</b></h4>
+          <p><strong>Organization:</strong> {{ job?.organizations[0]?.name }}</p>
+          <p>
+            <strong>Compensation: </strong>
+            <span v-if="job?.compensation?.data !== null">
+              {{ job?.compensation?.data?.currency }} {{ job?.compensation?.data?.minAmount }}-{{ job?.compensation?.data?.maxAmount }}/{{ job?.compensation?.data?.periodicity }}
+            </span>
+            <span v-else>To be defined</span>
+          </p>
+          <p>
+            <strong>Remote: </strong>
+            <span v-if="job?.remote">Yes</span>
+            <span v-else>No</span>
+          </p>
+        </div>
+      </div>
+    </div>
+    <a class="button_load" type="button" v-if="arrayJobs.length > 0" @click="getJobs(true)">Load more</a>
   </div>
+  <ModalJobs :jobId="jobId" v-if="showModal" @close="showModal = false" />
 </template>
+
+<script>
+import axios from 'axios'
+import avatar from '@/assets/img_avatar.png'
+import ModalJobs from '../components/ModalJobs'
+
+export default {
+  name: 'Jobs',
+  components: { ModalJobs },
+  data () {
+    return {
+      arrayJobs: [],
+      size: 3,
+      offset: 0,
+      name: '',
+      avatar: avatar,
+      jobId: '',
+      showModal: false
+    }
+  },
+  methods: {
+    validateWithEnter (e) {
+      if (e.keyCode === 13) {
+        this.getJobs(false)
+      }
+    },
+    getJobs (isLoadMore) {
+      if (!isLoadMore) {
+        this.arrayJobs = []
+        this.offset = 0
+      } else {
+        this.offset = this.offset + 3
+      }
+      const configHeaders = {
+        'Access-Control-Allow-Origin': '*',
+        'content-type': 'application/json'
+      }
+      let body = {}
+      if (this.name !== '') {
+        body = {
+          name: {
+            term: this.name
+          }
+        }
+      }
+      axios
+        .post('https://search.torre.co/opportunities/_search?size=' + this.size + '&aggregate=false&offset=' + this.offset,
+          body,
+          {
+            headers: configHeaders
+          })
+        .then((result) => {
+          for (let i = 0; i < result.data.results.length; i++) {
+            this.arrayJobs.push(result.data.results[i])
+          }
+          console.log(this.arrayJobs)
+        })
+        .catch(e => console.log(e))
+    },
+    goToSingle (jobId) {
+      this.jobId = jobId
+      console.log(this.jobId)
+      this.showModal = true
+    }
+  }
+}
+</script>
 
 <style scoped>
 
@@ -30,65 +108,106 @@
   width: 80%;
   margin-left: 10%;
 }
+
+body{
+  background: #f2f2f2;
+  font-family: 'Open Sans', sans-serif;
+}
+
+.search {
+  width: 100%;
+  position: relative;
+  display: flex;
+}
+
+.searchTerm {
+  width: 100%;
+  border: 3px solid #42b983;
+  border-right: none;
+  padding: 5px;
+  height: 20px;
+  border-radius: 5px 0 0 5px;
+  outline: none;
+  color: #9DBFAF;
+}
+
+.searchTerm:focus{
+  color: #42b983;
+}
+
+.searchButton {
+  width: 40px;
+  height: 36px;
+  border: 1px solid #42b983;
+  background: #42b983;
+  text-align: center;
+  color: #fff;
+  border-radius: 0 5px 5px 0;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.wrap_search{
+  width: 50%;
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: auto 20px;
+}
+
+.wrap_card{
+  width: 100%;
+  margin: 30px auto;
+}
+
 .card {
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
   transition: 0.3s;
-  width: 50%;
+  width: 80%;
   float: left;
-  margin-left: 0;
+  margin: 0 0 20px 10%;
   cursor: pointer;
+}
+
+a.button_load{
+  display: inline-block;
+  padding: 10px 20px;
+  border: 1px solid #42b983;
+  margin: 20px 0;
+  border-radius: 5%;
+  box-sizing: border-box;
+  text-decoration:none;
+  color: #42b983;
+  text-align: center;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+a.button_load:hover{
+  color:#ffffff;
+  background-color:#42b983;
+}
+
+.pic_avatar{
+  float: left;
+  width: 30%;
 }
 
 .card:hover {
   box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
 }
 
-.container {
-  padding: 2px 16px;
+.card_container {
+  float: right;
+  width: 64%;
+  margin: 5% 3%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.card_container p, .card_container h4{
+  margin: 3px auto;
 }
 </style>
-
-<script>
-// @ is an alias to /src
-import axios from 'axios'
-
-export default {
-  name: 'Jobs',
-  components: {},
-  data () {
-    return {
-      publicPath: process.env.BASE_URL,
-      arrayProfiles: [],
-      size: 6,
-      name: ''
-    }
-  },
-  methods: {
-    getJobs () {
-      this.arrayProfiles = []
-      const configHeaders = {
-        'Access-Control-Allow-Origin': '*',
-        'content-type': 'application/json'
-      }
-      axios
-        .post('https://search.torre.co/opportunities/_search?size=' + this.size + '&aggregate=false&offset=0',
-          {
-            name: {
-              term: this.name
-            }
-          },
-          {
-            headers: configHeaders
-          })
-        .then((result) => {
-          console.log(result.data.results)
-          this.arrayProfiles = result.data.results
-        })
-        .catch(e => console.log(e))
-    },
-    goToSingle (job) {
-      console.log(job)
-    }
-  }
-}
-</script>
