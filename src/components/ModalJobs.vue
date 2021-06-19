@@ -4,9 +4,9 @@
       <div class="modal-wrapper">
         <div class="modal-container">
 
-          <button class="modal-default-button" @click="$emit('close')">
-            Close
-          </button>
+          <a class="close_modal" @click="$emit('close')">
+            X
+          </a>
 
           <div class="modal-header">
             <span v-for="org in job?.organizations?.slice(0,1)" :key="org.id">
@@ -119,8 +119,15 @@ export default {
   display: block;
 }
 
-.modal-default-button {
+.close_modal {
   float: right;
+  font-size: 30px;
+  color: #9DBFAF;
+  cursor: pointer;
+}
+
+.close_modal:hover{
+  color: #42b983;
 }
 
 .modal-enter .modal-container,

@@ -4,9 +4,9 @@
       <div class="modal-wrapper">
         <div class="modal-container">
 
-          <button class="modal-default-button" @click="$emit('close')">
-            Close
-          </button>
+          <a class="close_modal" @click="$emit('close')">
+            X
+          </a>
 
           <div class="modal-header">
             <img class="pic_avatar" :src="profile?.person?.picture || avatar" alt="">
@@ -137,8 +137,15 @@ export default {
   display: block;
 }
 
-.modal-default-button {
+.close_modal {
   float: right;
+  font-size: 30px;
+  color: #9DBFAF;
+  cursor: pointer;
+}
+
+.close_modal:hover{
+  color: #42b983;
 }
 
 .modal-enter .modal-container,
