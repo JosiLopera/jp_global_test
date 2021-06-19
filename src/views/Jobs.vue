@@ -74,8 +74,9 @@ export default {
       let body = {}
       if (this.name !== '') {
         body = {
-          name: {
-            term: this.name
+          'skill/role': {
+            text: this.name,
+            experience: 'potential-to-develop'
           }
         }
       }

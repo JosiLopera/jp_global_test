@@ -36,7 +36,7 @@
           </div>
 
           <div class="modal-body">
-            <div class="info_box" v-for="detail in job?.details?.slice(0,4)" :key="detail.id">
+            <div class="info_box" v-for="detail in job?.details" :key="detail.id">
               <h3>{{ detail.code }}</h3>
               <p>{{ detail.content }}</p>
             </div>
