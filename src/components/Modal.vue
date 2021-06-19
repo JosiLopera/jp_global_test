@@ -3,32 +3,53 @@
     <div class="modal-mask">
       <div class="modal-wrapper">
         <div class="modal-container">
-
-          <a class="close_modal" @click="$emit('close')">
-            X
-          </a>
-
-          <div class="modal-header">
-            <img class="pic_avatar" :src="profile?.person?.picture || avatar" alt="">
+          <a class="close_modal" @click="$emit('close')">X</a>
+          <div v-if="pageName === 'people'" class="modal-header">
+            <img class="pic_avatar" :src="data?.person?.picture || avatar" alt="">
             <div class="personal_info_box">
-              <h3>{{ profile?.person?.name }}</h3>
+              <h3>{{ data?.person?.name }}</h3>
               <section>
-                <strong>Profession:</strong> {{ profile?.person?.professionalHeadline }}<br>
-                <strong>Location:</strong> {{ profile?.person?.location?.name }}<br>
-                <strong>Languages:</strong> <span v-for="lang in profile?.languages" :key="lang.id">
+                <strong>Profession:</strong> {{ data?.person?.professionalHeadline }}<br>
+                <strong>Location:</strong> {{ data?.person?.location?.name }}<br>
+                <strong>Languages:</strong> <span v-for="lang in data?.languages" :key="lang.id">
                   {{ lang.language }},
                 </span>
               </section>
             </div>
           </div>
-
-          <div class="modal-body">
+          <div v-else class="modal-header">
+            <span v-for="org in data?.organizations?.slice(0,1)" :key="org.id">
+              <img class="pic_avatar" :src="org?.picture || avatar" alt="">
+            </span>
+            <div class="personal_info_box">
+              <h3 >{{ data?.objective }}</h3>
+              <section>
+                <strong>Organization: </strong>
+                <span v-for="org in data?.organizations?.slice(0,1)" :key="org.id">
+                  {{ org.name }}
+                </span><br>
+                <strong>Compensation: </strong>
+                <span v-if="data?.compensation?.visible">
+                    {{ data?.compensation?.minAmount }} - {{ data?.compensation?.maxAmount }} / {{ data?.compensation?.periodicity }}
+                  </span>
+                <span v-else>
+                    To be defined
+                  </span><br>
+                <strong>Languages: </strong>
+                <span v-for="lang in data?.languages" :key="lang.id">
+                  {{ lang.language.name }} ({{ lang.fluency }}),
+                </span><br>
+                <strong>Opportunity: </strong> {{ data?.opportunity }}
+              </section>
+            </div>
+          </div>
+          <div v-if="pageName === 'people'" class="modal-body">
             <div class="info_box">
               <h3>Education</h3>
-              <div v-if="profile?.education?.length">
-                <section v-for="edu in profile?.education.slice(0, 3)" :key="edu.id">
+              <div v-if="data?.education?.length">
+                <section v-for="edu in data?.education" :key="edu.id">
                   <strong>Title:</strong> {{ edu.name }}<br>
-                  <strong>University:</strong> {{ edu.organizations[0].name }}<br>
+                  <strong>University:</strong> {{ edu.organizations.name }}<br>
                   <strong v-if="edu.fromMonth">From:</strong> {{ edu.fromMonth }}<span v-if="edu.fromMonth">/</span>{{ edu.fromYear }}<br>
                   <strong v-if="edu.toMonth">To:</strong> {{ edu.toMonth }}<span v-if="edu.toMonth">/</span>{{ edu.toYear }}<br>
                   <span>&nbsp;</span>
@@ -40,10 +61,10 @@
             </div>
             <div class="info_box">
               <h3>Experiences</h3>
-              <div v-if="profile?.experiences?.length">
-                <section v-for="exp in profile?.experiences.slice(0, 3)" :key="exp.id">
+              <div v-if="data?.experiences?.length">
+                <section v-for="exp in data?.experiences" :key="exp.id">
                   <strong>Title:</strong> {{ exp.name }}<br>
-                  <strong>University:</strong> {{ exp.organizations[0].name }}<br>
+                  <strong>University:</strong> {{ exp.organizations.name }}<br>
                   <strong v-if="exp.fromMonth">From:</strong> {{ exp.fromMonth }}<span v-if="exp.fromMonth">/</span>{{ exp.fromYear }}<br>
                   <strong v-if="exp.toMonth">To:</strong> {{ exp.toMonth }}<span v-if="exp.toMonth">/</span>{{ exp.toYear }}<br>
                   <span>&nbsp;</span>
@@ -54,11 +75,11 @@
               </div>
             </div>
           </div>
-
-          <div class="modal-footer">
-            <slot name="footer">
-
-            </slot>
+          <div v-else class="modal-body">
+            <div class="info_box" v-for="detail in data?.details" :key="detail.id">
+              <h3>{{ detail.code }}</h3>
+              <p>{{ detail.content }}</p>
+            </div>
           </div>
         </div>
       </div>
@@ -73,18 +94,26 @@ import avatar from '@/assets/img_avatar.png'
 export default {
   name: 'Modal',
   props: {
-    username: String
+    dataIdName: String,
+    pageName: String
   },
   data () {
     return {
-      profile: {},
+      data: {},
       avatar: avatar
     }
   },
   beforeCreate () {
-    axios.get('https://torre.bio/api/bios/' + this.username)
+    let url = ''
+    if (this.pageName === 'people') {
+      url = 'https://torre.bio/api/bios/' + this.dataIdName
+    } else {
+      url = 'https://torre.co/api/opportunities/' + this.dataIdName
+    }
+    axios.get(url)
       .then((result) => {
-        this.profile = result.data
+        this.data = result.data
+        console.log(this.data)
       })
       .catch(e => console.log(e))
   }

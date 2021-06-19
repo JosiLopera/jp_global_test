@@ -2,7 +2,7 @@
   <div class="wrapper">
     <div class="wrap_search">
       <div class="search">
-        <input v-model="name" v-on:keyup="validateWithEnter" type="text" class="searchTerm" placeholder="Find a job">
+        <input v-model="name" v-on:keyup="validateWithEnter" type="text" class="searchTerm" :placeholder="pageName === 'people' ? 'Find a profile' : 'Find a job' ">
         <button type="submit" class="searchButton" @click="getData(false)">
           Search
         </button>
@@ -31,7 +31,7 @@
       </div>
     </div>
     <div class="wrap_card" v-else>
-      <div class="card" v-for="profile in arrayData" :key="profile.id" @click="goToSingle(profile)">
+      <div class="card" v-for="profile in arrayData" :key="profile.id" @click="goToSingle(profile.username)">
         <img class="pic_avatar" :src="profile.picture || avatar" alt="">
         <div class="card_container">
           <h4><b>{{ profile.name }}</b></h4>
@@ -42,17 +42,17 @@
     </div>
     <a class="button_load" type="button" v-if="arrayData.length > 0" @click="getData(true)">Load more</a>
   </div>
-  <ModalJobs :jobId="jobId" v-if="showModal" @close="showModal = false" />
+  <Modal :page-name="pageName" :dataIdName="SingleData" v-if="showModal" @close="showModal = false" />
 </template>
 
 <script>
 import axios from 'axios'
 import avatar from '@/assets/img_avatar.png'
-import ModalJobs from '../components/ModalJobs'
+import Modal from '../components/Modal'
 
 export default {
   name: 'Search',
-  components: { ModalJobs },
+  components: { Modal },
   props: {
     pageName: String
   },
@@ -117,6 +117,7 @@ export default {
         .catch(e => console.log(e))
     },
     goToSingle (singleData) {
+      console.log(this.pageName)
       this.SingleData = singleData
       this.showModal = true
     }
